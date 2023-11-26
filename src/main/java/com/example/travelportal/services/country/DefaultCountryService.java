@@ -33,6 +33,11 @@ public class DefaultCountryService implements CountryService {
     }
 
     @Override
+    public Country updateCountry(Country country) {
+        return null;
+    }
+
+    @Override
     public Country saveCountry(Country country) {
         return null;
     }
