@@ -2,22 +2,32 @@ package com.example.travelportal.services.country;
 
 import com.example.travelportal.model.Country;
 import com.example.travelportal.repositories.CountryRepository;
-import com.example.travelportal.services.country.CountryService;
+import com.example.travelportal.services.hotel.HotelService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Primary
 public class DefaultCountryService implements CountryService {
+
     private final CountryRepository countryRepository;
 
+    private final HotelService hotelService;
+
     @Autowired
-    public DefaultCountryService(CountryRepository countryRepository) {
+    public DefaultCountryService(CountryRepository countryRepository,
+                                 @Lazy HotelService hotelService) {
         this.countryRepository = countryRepository;
+        this.hotelService = hotelService;
     }
 
     @Override
@@ -33,17 +43,39 @@ public class DefaultCountryService implements CountryService {
     }
 
     @Override
+    @Transactional
     public Country updateCountry(Country country) {
-        return null;
+        Optional<Country> oldCountry = countryRepository.findByName(country.getName());
+        if (country.getName() == null ||
+                country.getName().length() > 255 ||
+                oldCountry.isEmpty() ||
+                !Objects.equals(oldCountry.get().getId(), country.getId()))
+            throw new DataIntegrityViolationException("Invalid country name");
+        if (country.getCapital() == null || country.getCapital().length() > 128)
+            throw new DataIntegrityViolationException("Invalid country capital");
+
+        return countryRepository.save(country);
     }
 
     @Override
+    @Transactional
     public Country saveCountry(Country country) {
-        return null;
+        if (country.getName() == null || country.getName().length() > 255 || countryRepository.findByName(country.getName()).isPresent())
+            throw new DataIntegrityViolationException("Invalid country name");
+        if (country.getCapital() == null || country.getCapital().length() > 128)
+            throw new DataIntegrityViolationException("Invalid country capital");
+
+        return countryRepository.save(country);
     }
 
     @Override
+    @Transactional
     public void deleteCountryById(long countryId) {
+        Country country = countryRepository.findById(countryId).orElseThrow(
+                () -> new EntityNotFoundException("Country with id " + countryId + " not found"));
+        if (hotelService.getHotelCountByCountryId(countryId) > 0)
+            throw new IllegalArgumentException("Cannot delete country with existing hotels.");
 
+        countryRepository.delete(country);
     }
 }
