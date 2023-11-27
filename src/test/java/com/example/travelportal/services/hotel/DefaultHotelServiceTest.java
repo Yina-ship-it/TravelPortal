@@ -252,7 +252,7 @@ class DefaultHotelServiceTest {
     @Test
     void saveHotel_WhenNameExceedsMaxLength_ShouldThrowException() {
         // Arrange
-        String tooLongName = "A".repeat(256);;
+        String tooLongName = "A".repeat(256);
         Country country = new Country(1L, "Франция", "Париж");
         Hotel newHotel = Hotel.builder()
                 .name(tooLongName)
@@ -293,7 +293,7 @@ class DefaultHotelServiceTest {
     @Test
     void saveHotel_WithInvalidWebsite_ShouldThrowException() {
         // Arrange
-        String invalidWebsite = "abc";;
+        String invalidWebsite = "abc";
         Country country = new Country(1L, "Франция", "Париж");
         Hotel newHotel = Hotel.builder()
                 .name("Отель1")
@@ -334,5 +334,21 @@ class DefaultHotelServiceTest {
         // Act & Assert
         assertThrows(EntityNotFoundException.class,
                 () -> hotelService.deleteHotelById(hotelId));
+    }
+
+    @Test
+    void getHotelCountByCountryId_ShouldHotelCountInCountry(){
+        // Arrange
+        Country country = new Country(1L, "Россия", "Москва");
+        List<Hotel> hotels = List.of(new Hotel(1L, "Отель1", country, 5, null),
+                new Hotel(2L, "Отель 2", country, 4, null));
+
+        doReturn(hotels.size()).when(hotelRepository).countByCountry_Id(country.getId());
+
+        // Act
+        int result = hotelService.getHotelCountByCountryId(country.getId());
+
+        // Assert
+        assertEquals(hotels.size(), result);
     }
 }

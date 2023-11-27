@@ -32,8 +32,9 @@ public class DefaultHotelService implements HotelService {
 
 
     @Override
+    @Transactional
     public int getHotelCountByCountryId(long countryId) {
-        return 0;
+        return hotelRepository.countByCountry_Id(countryId);
     }
 
     @Override
