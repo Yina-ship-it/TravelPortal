@@ -1,10 +1,22 @@
 package com.example.travelportal.services.hotel;
 
 import com.example.travelportal.model.Hotel;
+import com.example.travelportal.repositories.HotelRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public class DefaultHotelService implements HotelService {
+
+    private final HotelRepository hotelRepository;
+
+    @Autowired
+    public DefaultHotelService(HotelRepository hotelRepository) {
+        this.hotelRepository = hotelRepository;
+    }
 
 
     @Override
@@ -13,14 +25,17 @@ public class DefaultHotelService implements HotelService {
     }
 
     @Override
+    @Transactional
     public List<Hotel> getAllHotels() {
-        return null;
+        return hotelRepository.findAll();
     }
 
     @Override
+    @Transactional
     public Hotel getHotelById(long hotelId) {
-        return null;
+        return hotelRepository.findById(hotelId).orElse(null);
     }
+
 
     @Override
     public Hotel updateHotel(Hotel hotel) {
