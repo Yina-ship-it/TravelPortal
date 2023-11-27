@@ -32,41 +32,45 @@ public class DataLoader implements CommandLineRunner {
 
     private void loadCountries() {
         InputStream resourceAsStream = getClass().getResourceAsStream("/data/countries.csv");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
-        countryRepository.saveAll(
-                reader.lines()
-                        .skip(1)
-                        .map(line -> {
-                            String[] fields = line.split(",");
-                            Country country = new Country();
-                            country.setName(fields[0]);
-                            country.setCapital(fields[1]);
-                            return country;
-                        })
-                        .collect(Collectors.toList())
-        );
+        if (resourceAsStream != null) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+            countryRepository.saveAll(
+                    reader.lines()
+                            .skip(1)
+                            .map(line -> {
+                                String[] fields = line.split(",");
+                                Country country = new Country();
+                                country.setName(fields[0]);
+                                country.setCapital(fields[1]);
+                                return country;
+                            })
+                            .collect(Collectors.toList())
+            );
+        }
     }
 
     private void loadHotels() {
         InputStream resourceAsStream = getClass().getResourceAsStream("/data/hotels.csv");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+        if (resourceAsStream != null) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+            hotelRepository.saveAll(
+                    reader.lines()
+                            .skip(1)
+                            .map(line -> {
+                                String[] fields = line.split(",");
+                                Hotel hotel = new Hotel();
+                                hotel.setName(fields[0]);
+                                hotel.setCountry(countryRepository.findByName(fields[1]).orElse(null));
+                                hotel.setStars(Integer.parseInt(fields[2]));
+                                if (fields.length > 3) {
+                                    hotel.setWebsite(fields[3]);
+                                }
+                                return hotel;
+                            })
+                            .collect(Collectors.toList())
+            );
+        }
 
-        hotelRepository.saveAll(
-                reader.lines()
-                        .skip(1)
-                        .map(line -> {
-                            String[] fields = line.split(",");
-                            Hotel hotel = new Hotel();
-                            hotel.setName(fields[0]);
-                            hotel.setCountry(countryRepository.findByName(fields[1]).orElse(null));
-                            hotel.setStars(Integer.parseInt(fields[2]));
-                            if (fields.length > 3) {
-                                hotel.setWebsite(fields[3]);
-                            }
-                            return hotel;
-                        })
-                        .collect(Collectors.toList())
-        );
     }
 }
 

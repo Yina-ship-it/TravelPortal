@@ -129,7 +129,6 @@ class DefaultHotelServiceTest {
     void updateHotel_WithCountryNotFound_ShouldThrowException() {
         // Arrange
         Country country = new Country(1L, "Франция", "Париж");
-        Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, "Отель1", country, 5, "https://hotel1.com");
 
         doReturn(null).when(countryService).getCountryById(country.getId());
@@ -158,7 +157,7 @@ class DefaultHotelServiceTest {
     @Test
     void updateHotel_WhenNameExceedsMaxLength_ShouldThrowException() {
         // Arrange
-        String tooLongName = "A".repeat(256);;
+        String tooLongName = "A".repeat(256);
         Country country = new Country(1L, "Франция", "Париж");
         Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, tooLongName, country, 4, "https://hotel1.com");
