@@ -40,4 +40,24 @@ class HotelRepositoryIntegrationTest {
         assertNotNull(result);
         assertEquals(hotel, result);
     }
+
+    @Test
+    void countByCountry_Id(){
+        // Arrange
+        Country country = Country.builder().name("CountryTest").capital("CapitalTest").build();
+        entityManager.persist(country);
+        Hotel hotel1 = Hotel.builder().name("HotelTest1").country(country).stars(5).build();
+        Hotel hotel2 = Hotel.builder().name("HotelTest2").country(country).stars(5).build();
+        Hotel hotel3 = Hotel.builder().name("HotelTest3").country(country).stars(5).build();
+        entityManager.persist(hotel1);
+        entityManager.persist(hotel2);
+        entityManager.persist(hotel3);
+        entityManager.flush();
+
+        // Act
+        int result = hotelRepository.countByCountry_Id(country.getId());
+
+        // Assert
+        assertEquals(3, result);
+    }
 }

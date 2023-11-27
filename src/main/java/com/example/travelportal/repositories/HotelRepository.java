@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
     Optional<Hotel> findByCountry_IdAndName(long countryId, String hotelName);
+    int countByCountry_Id(long countryId);
 }
