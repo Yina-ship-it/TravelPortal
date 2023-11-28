@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class countryDto {
+public class CountryDto {
     private Long id;
     private String name;
     private String capital;
