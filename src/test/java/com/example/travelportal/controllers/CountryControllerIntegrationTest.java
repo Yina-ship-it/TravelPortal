@@ -67,5 +67,31 @@ class CountryControllerIntegrationTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(countriesDto)));
     }
 
+    @Test
+    void getCountryById_WhenCountryFound_ShouldReturnOkStatusAndCountryDto() throws Exception {
+        // Arrange
+        Country country = Country.builder().name("TestCountry1").capital("TestCapital1").build();
 
+        CountryDto countryDto = countryDtoConverter.convertToDto(countryRepository.save(country));
+
+        // Act
+        mockMvc.perform(get("/api/countries/{id}", country.getId()))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(countryDto)));
+    }
+
+    @Test
+    void getCountryById_WhenCountryNotFound_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        long id = Long.MAX_VALUE;
+
+        // Act
+        mockMvc.perform(get("/api/countries/{id}", id))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
+    }
 }
