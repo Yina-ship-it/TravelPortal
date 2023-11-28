@@ -66,7 +66,7 @@ public class CountryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CountryDto> editCountry(@PathVariable long id, @RequestBody CountryDto countryDTO) {
+    public ResponseEntity<CountryDto> updateCountry(@PathVariable long id, @RequestBody CountryDto countryDTO) {
         return null;
     }
 }
