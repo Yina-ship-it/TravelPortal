@@ -167,4 +167,138 @@ class CountryControllerIntegrationTest {
                 .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void updateCountry_WhenCountryDtoWithValidData_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name("TestCountry2").capital("TestCapital2").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> updatedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(updatedCountry.isPresent());
+        assertEquals(oldCountry.getId(), updatedCountry.get().getId());
+        assertEquals(countryDto.getName(), updatedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), updatedCountry.get().getCapital());
+    }
+
+    @Test
+    void updateCountry_WhenCountryDtoWithoutName_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().capital("TestCapital2").build();
+
+        // Act
+        mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateCountry_WhenCountryDtoWithoutCapital_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name("TestCountry2").build();
+
+        // Act
+        mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateCountry_WhenCountryDtoWithValidDataAndId_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().id(1L).name("TestCountry2").capital("TestCapital2").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> updatedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(updatedCountry.isPresent());
+        assertEquals(oldCountry.getId(), updatedCountry.get().getId());
+        assertEquals(countryDto.getName(), updatedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), updatedCountry.get().getCapital());
+    }
+
+    @Test
+    void updateCountry_WhenOnlyNameUpdated_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name("TestCountry2").capital(oldCountry.getCapital()).build();
+
+        // Act
+        String responseContent  = mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> updatedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(updatedCountry.isPresent());
+        assertEquals(oldCountry.getId(), updatedCountry.get().getId());
+        assertEquals(countryDto.getName(), updatedCountry.get().getName());
+        assertEquals(oldCountry.getCapital(), updatedCountry.get().getCapital());
+    }
+
+    @Test
+    void updateCountry_WhenOnlyCapitalUpdated_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name(oldCountry.getName()).capital("TestCapital2").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> updatedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(updatedCountry.isPresent());
+        assertEquals(oldCountry.getId(), updatedCountry.get().getId());
+        assertEquals(oldCountry.getName(), updatedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), updatedCountry.get().getCapital());
+    }
 }
