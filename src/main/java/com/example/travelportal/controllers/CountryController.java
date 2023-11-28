@@ -64,5 +64,10 @@ public class CountryController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CountryDto> editCountry(@PathVariable long id, @RequestBody CountryDto countryDTO) {
+        return null;
+    }
 }
 
