@@ -7,6 +7,7 @@ import com.example.travelportal.services.country.CountryService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Primary
 public class DefaultHotelService implements HotelService {
 
     private final HotelRepository hotelRepository;
