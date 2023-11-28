@@ -3,10 +3,10 @@ package com.example.travelportal.controllers;
 import com.example.travelportal.dto.country.CountryDto;
 import com.example.travelportal.dto.country.CountryDtoConverter;
 import com.example.travelportal.model.Country;
+import com.example.travelportal.model.Hotel;
 import com.example.travelportal.repositories.CountryRepository;
 import com.example.travelportal.repositories.HotelRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -39,6 +37,9 @@ class CountryControllerIntegrationTest {
 
     @Autowired
     private CountryRepository countryRepository;
+
+    @Autowired
+    private HotelRepository hotelRepository;
 
     @Autowired
     private CountryDtoConverter countryDtoConverter;
@@ -300,5 +301,42 @@ class CountryControllerIntegrationTest {
         assertEquals(oldCountry.getId(), updatedCountry.get().getId());
         assertEquals(oldCountry.getName(), updatedCountry.get().getName());
         assertEquals(countryDto.getCapital(), updatedCountry.get().getCapital());
+    }
+
+    @Test
+    void deleteCountry_WhenNoHotelsInCountry_ShouldReturnOkStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+
+        // Act
+        mockMvc.perform(delete("/api/countries/{id}", country.getId()))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteCountry_WhenHotelsExistInCountry_ShouldReturnConflictStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        hotelRepository.save(Hotel.builder().name("Hotel1").country(country).stars(5).build());
+
+        // Act
+        mockMvc.perform(delete("/api/countries/{id}", country.getId()))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void deleteCountry_WhenCountryNotFound_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        long id = Long.MAX_VALUE;
+
+        // Act
+        mockMvc.perform(delete("/api/countries/{id}", id))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
     }
 }
