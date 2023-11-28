@@ -6,6 +6,7 @@ import com.example.travelportal.model.Country;
 import com.example.travelportal.services.country.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,14 @@ public class CountryController {
 
     @PostMapping("/")
     public ResponseEntity<CountryDto> createCountry(@RequestBody CountryDto countryDTO) {
-        return null;
+        try{
+            Country createdCountry = countryService.saveCountry(countryDtoConverter.convertToEntity(countryDTO));
+            return new ResponseEntity<>(countryDtoConverter.convertToDto(createdCountry), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
