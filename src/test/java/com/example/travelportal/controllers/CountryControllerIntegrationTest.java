@@ -20,8 +20,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -93,5 +95,76 @@ class CountryControllerIntegrationTest {
                 // Assert
                 .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createCountry_WhenCountryDtoWithValidData_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().name("TestCountry1").capital("TestCapital1").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> savedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(savedCountry.isPresent());
+        assertEquals(countryDto.getName(), savedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), savedCountry.get().getCapital());
+    }
+
+    @Test
+    void createCountry_WhenCountryDtoWithDuplicateName_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = Country.builder().name("TestCountry1").capital("TestCapital1").build();
+        CountryDto countryDto = CountryDto.builder().name("TestCountry1").capital("TestCapital2").build();
+
+        countryRepository.save(country);
+
+        // Act
+        mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createCountry_WhenCountryDtoWithNameExceedsMaxLength_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        String tooLongName = "A".repeat(256);
+        CountryDto countryDto = CountryDto.builder().name(tooLongName).capital("TestCapital1").build();
+
+        // Act
+        mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createCountry_WhenCountryDtoWithCapitalExceedsMaxLength_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        String tooLongCapital = "A".repeat(129);
+        CountryDto countryDto = CountryDto.builder().name("TestCountry1").capital(tooLongCapital).build();
+
+        // Act
+        mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
     }
 }
