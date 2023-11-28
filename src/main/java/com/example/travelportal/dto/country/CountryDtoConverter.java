@@ -8,11 +8,19 @@ import org.springframework.stereotype.Component;
 public class CountryDtoConverter implements DtoConverter<Country, CountryDto> {
     @Override
     public CountryDto convertToDto(Country country) {
-        return null;
+        return CountryDto.builder()
+                .id(country.getId())
+                .name(country.getName())
+                .capital(country.getCapital())
+                .build();
     }
 
     @Override
     public Country convertToEntity(CountryDto countryDto) {
-        return null;
+        return Country.builder()
+                .id(countryDto.getId())
+                .name(countryDto.getName())
+                .capital(countryDto.getCapital())
+                .build();
     }
 }
