@@ -82,7 +82,16 @@ public class CountryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCountry(@PathVariable long id) {
-        return null;
+        try {
+            countryService.deleteCountryById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
