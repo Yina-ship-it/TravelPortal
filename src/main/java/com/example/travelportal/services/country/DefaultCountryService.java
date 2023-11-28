@@ -45,11 +45,10 @@ public class DefaultCountryService implements CountryService {
     @Override
     @Transactional
     public Country updateCountry(Country country) {
-        Optional<Country> oldCountry = countryRepository.findByName(country.getName());
+        Optional<Country> countryDuplicatedName = countryRepository.findByName(country.getName());
         if (country.getName() == null ||
                 country.getName().length() > 255 ||
-                oldCountry.isEmpty() ||
-                !Objects.equals(oldCountry.get().getId(), country.getId()))
+                (countryDuplicatedName.isPresent() && !Objects.equals(countryDuplicatedName.get().getId(), country.getId())))
             throw new DataIntegrityViolationException("Invalid country name");
         if (country.getCapital() == null || country.getCapital().length() > 128)
             throw new DataIntegrityViolationException("Invalid country capital");
