@@ -2,6 +2,7 @@ package com.example.travelportal.controllers;
 
 import com.example.travelportal.dto.country.CountryDto;
 import com.example.travelportal.dto.country.CountryDtoConverter;
+import com.example.travelportal.model.Country;
 import com.example.travelportal.services.country.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,7 +43,16 @@ public class CountryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CountryDto> getCountryById(@PathVariable long id) {
-        return null;
+        try {
+            Country country = countryService.getCountryById(id);
+            if (country != null) {
+                return new ResponseEntity<>(countryDtoConverter.convertToDto(country), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
