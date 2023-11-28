@@ -4,6 +4,7 @@ import com.example.travelportal.dto.country.CountryDto;
 import com.example.travelportal.dto.country.CountryDtoConverter;
 import com.example.travelportal.model.Country;
 import com.example.travelportal.services.country.CountryService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -77,6 +78,11 @@ public class CountryController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCountry(@PathVariable long id) {
+        return null;
     }
 }
 
