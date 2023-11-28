@@ -67,7 +67,16 @@ public class CountryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CountryDto> updateCountry(@PathVariable long id, @RequestBody CountryDto countryDTO) {
-        return null;
+        try{
+            Country country = countryDtoConverter.convertToEntity(countryDTO);
+            country.setId(id);
+            Country createdCountry = countryService.updateCountry(country);
+            return new ResponseEntity<>(countryDtoConverter.convertToDto(createdCountry), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
