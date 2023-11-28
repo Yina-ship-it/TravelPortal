@@ -88,12 +88,25 @@ class DefaultCountryServiceTest {
     }
 
     @Test
-    void updateCountry_WithValidData_ShouldUpdateCountry() {
+    void updateCountry_WhenCapitalWithValidData_ShouldUpdateCountry() {
         // Arrange
         Country country = new Country(1L,"Франция", "Лондон");
         Country updatedCountry = new Country(1L, "Франция", "Париж");
 
         doReturn(Optional.of(country)).when(countryRepository).findByName(updatedCountry.getName());
+
+        // Act & Assert
+        assertDoesNotThrow(() -> countryService.updateCountry(updatedCountry));
+        verify(this.countryRepository).save(updatedCountry);
+    }
+
+    @Test
+    void updateCountry_WhenNameWithValidData_ShouldUpdateCountry() {
+        // Arrange
+        Country country = new Country(1L,"Франция", "Лондон");
+        Country updatedCountry = new Country(1L, "Великобритания", "Лондон");
+
+        doReturn(Optional.empty()).when(countryRepository).findByName(updatedCountry.getName());
 
         // Act & Assert
         assertDoesNotThrow(() -> countryService.updateCountry(updatedCountry));
