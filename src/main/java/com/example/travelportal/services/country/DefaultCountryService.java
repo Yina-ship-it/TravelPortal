@@ -45,6 +45,9 @@ public class DefaultCountryService implements CountryService {
     @Override
     @Transactional
     public Country updateCountry(Country country) {
+        Optional<Country> oldCountry = countryRepository.findById(country.getId());
+        if(oldCountry.isEmpty())
+            throw new EntityNotFoundException("Country with id " + country.getId() + " not found");
         Optional<Country> countryDuplicatedName = countryRepository.findByName(country.getName());
         if (country.getName() == null ||
                 country.getName().length() > 255 ||
