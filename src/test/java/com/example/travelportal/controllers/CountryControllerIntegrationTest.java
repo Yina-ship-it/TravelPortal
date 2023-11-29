@@ -304,6 +304,21 @@ class CountryControllerIntegrationTest {
     }
 
     @Test
+    void updateCountry_WhenCountryNotFound_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        long id = Long.MAX_VALUE;
+        CountryDto countryDto = CountryDto.builder().name("TestCountry2").capital("TestCapital2").build();
+
+        // Act
+        mockMvc.perform(put("/api/countries/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void updateCountry_WhenCountryDtoWithoutName_ShouldReturnBadRequestStatus() throws Exception {
         // Arrange
         Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
@@ -319,10 +334,40 @@ class CountryControllerIntegrationTest {
     }
 
     @Test
+    void updateCountry_WhenCountryDtoWithBlankName_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name("").capital("TestCapital2").build();
+
+        // Act
+        mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void updateCountry_WhenCountryDtoWithoutCapital_ShouldReturnBadRequestStatus() throws Exception {
         // Arrange
         Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
         CountryDto countryDto = CountryDto.builder().name("TestCountry2").build();
+
+        // Act
+        mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateCountry_WhenCountryDtoWithBlankCapital_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country oldCountry = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        CountryDto countryDto = CountryDto.builder().name("TestCountry2").capital("").build();
 
         // Act
         mockMvc.perform(put("/api/countries/{id}", oldCountry.getId())
