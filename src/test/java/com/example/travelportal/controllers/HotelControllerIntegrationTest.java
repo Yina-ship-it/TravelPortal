@@ -674,4 +674,434 @@ class HotelControllerIntegrationTest {
         assertEquals(oldHotel.getStars(), updatedHotel.get().getStars());
         assertEquals(hotelDto.getWebsite(), updatedHotel.get().getWebsite());
     }
+
+    @Test
+    void createHotel_WhenHotelDtoWithValidData_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithValidDataAndId_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        long id = Long.MAX_VALUE;
+        HotelDto hotelDto = HotelDto.builder()
+                .id(id)
+                .name("TestHotel")
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertNotEquals(id, createdHotel.get().getId());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithValidDataAndExistingHotelId_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        Hotel otherHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel1").country(country).stars(4).website("https://hotel1.ru").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .id(otherHotel.getId())
+                .name("TestHotel2")
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel2.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertNotEquals(otherHotel.getId(), createdHotel.get().getId());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutName_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithBlankName_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("")
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithNameExceedsMaxLength_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        String tooLongName = "A".repeat(256);
+        HotelDto hotelDto = HotelDto.builder()
+                .name(tooLongName)
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoDuplicateNameInSameCountry_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        Hotel otherHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel1").country(country).stars(4).website("https://hotel1.ru").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name(otherHotel.getName())
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel2.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoDuplicateNameInDifferentCountry_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country1 = countryRepository.save(
+                Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        Country country2 = countryRepository.save(
+                Country.builder().name("TestCountry2").capital("TestCapital2").build());
+        Hotel otherHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel1").country(country1).stars(4).website("https://hotel1.ru").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name(otherHotel.getName())
+                .countryName(country2.getName())
+                .countryId(country2.getId())
+                .stars(5)
+                .website("https://hotel2.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertNotEquals(otherHotel.getId(), createdHotel.get().getId());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutCountryId_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryName(country.getName())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutCountryIdFromNonExistentCountry_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        long countryId = Long.MAX_VALUE;
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryName(country.getName())
+                .countryId(countryId)
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutCountryName_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertNotNull(createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithBlankCountryName_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryId(country.getId())
+                .countryName("")
+                .stars(5)
+                .website("https://hotel.ru").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertNotNull(createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutStars_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryId(country.getId())
+                .countryName(country.getName())
+                .website("https://hotel.ru").build();
+
+        // Act
+        mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithoutWebsite_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryId(country.getId())
+                .countryName(country.getName())
+                .stars(5).build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertNull(createdHotel.get().getWebsite());
+    }
+
+    @Test
+    void createHotel_WhenHotelDtoWithBlankWebsite_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name("TestHotel")
+                .countryId(country.getId())
+                .countryName(country.getName())
+                .stars(5)
+                .website("").build();
+
+        // Act
+        String responseContent = mockMvc.perform(post("/api/hotels/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> createdHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(createdHotel.isPresent());
+        assertEquals(hotelDto.getName(), createdHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), createdHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), createdHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
+        assertNull(createdHotel.get().getWebsite());
+    }
 }
