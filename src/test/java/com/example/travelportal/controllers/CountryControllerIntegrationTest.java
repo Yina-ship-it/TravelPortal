@@ -123,6 +123,58 @@ class CountryControllerIntegrationTest {
     }
 
     @Test
+    void createCountry_WhenCountryDtoWithValidDataAndId_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        long id = Long.MAX_VALUE;
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().id(id).name("TestCountry").capital("TestCapital").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> savedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(savedCountry.isPresent());
+        assertNotEquals(countryDto.getId(), savedCountry.get().getId());
+        assertEquals(countryDto.getName(), savedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), savedCountry.get().getCapital());
+    }
+
+    @Test
+    void createCountry_WhenCountryDtoWithValidDataAndExistingCountryId_ShouldReturnCreatedStatusAndCountryDto() throws Exception {
+        Country country = countryRepository.save(Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().id(country.getId()).name("TestCountry2").capital("TestCapital2").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(post("/api/countries/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(countryDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        CountryDto response = objectMapper.readValue(responseContent, CountryDto.class);
+        Optional<Country> savedCountry = countryRepository.findById(response.getId());
+
+        assertTrue(savedCountry.isPresent());
+        assertNotEquals(countryDto.getId(), savedCountry.get().getId());
+        assertEquals(countryDto.getName(), savedCountry.get().getName());
+        assertEquals(countryDto.getCapital(), savedCountry.get().getCapital());
+    }
+
+    @Test
     void createCountry_WhenCountryDtoWithoutName_ShouldReturnBadRequestStatus() throws Exception {
         // Arrange
         CountryDto countryDto = CountryDto.builder().capital("TestCapital").build();

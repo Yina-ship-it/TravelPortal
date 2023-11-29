@@ -57,6 +57,7 @@ public class CountryController {
     @PostMapping("/")
     public ResponseEntity<CountryDto> createCountry(@RequestBody CountryDto countryDTO) {
         try{
+            countryDTO.setId(null);
             Country createdCountry = countryService.saveCountry(countryDtoConverter.convertToEntity(countryDTO));
             return new ResponseEntity<>(countryDtoConverter.convertToDto(createdCountry), HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e){
