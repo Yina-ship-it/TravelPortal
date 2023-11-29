@@ -70,8 +70,18 @@ public class HotelController {
         }
     }
 
-    @PutMapping("/")
+    @PostMapping("/")
     public ResponseEntity<HotelDto> createHotel(@RequestBody HotelDto hotelDto) {
-        return null;
+        try {
+            hotelDto.setId(null);
+            Hotel createdHotel = hotelService.saveHotel(hotelDtoConverter.convertToEntity(hotelDto));
+            return new ResponseEntity<>(hotelDtoConverter.convertToDto(createdHotel), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
