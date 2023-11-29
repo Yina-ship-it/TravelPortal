@@ -75,7 +75,7 @@ public class DefaultHotelService implements HotelService {
     @Override
     @Transactional
     public Hotel saveHotel(Hotel hotel) {
-        if(hotel.getCountry() == null)
+        if(hotel.getCountry() == null || hotel.getCountry().getId() == null)
             throw new EntityNotFoundException("Country not found.");
         Country country = countryService.getCountryById(hotel.getCountry().getId());
         if (country == null)
