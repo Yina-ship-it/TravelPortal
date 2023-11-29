@@ -19,8 +19,12 @@ public class CountryDtoConverter implements DtoConverter<Country, CountryDto> {
     public Country convertToEntity(CountryDto countryDto) {
         return Country.builder()
                 .id(countryDto.getId())
-                .name(countryDto.getName())
-                .capital(countryDto.getCapital())
+                .name(getNonBlankString(countryDto.getName()))
+                .capital(getNonBlankString(countryDto.getCapital()))
                 .build();
+    }
+
+    private String getNonBlankString(String value) {
+        return (value != null && !value.isBlank()) ? value : null;
     }
 }
