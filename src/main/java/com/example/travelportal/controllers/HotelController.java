@@ -84,4 +84,9 @@ public class HotelController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHotel(@PathVariable long id) {
+        return null;
+    }
 }
