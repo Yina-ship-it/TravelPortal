@@ -368,6 +368,58 @@ class HotelDtoConverterTest {
     }
 
     @Test
+    void convertToEntity_WhenHotelDtoWithBlankName_ShouldReturnHotelWithoutName() {
+        // Arrange
+        HotelDto hotelDto = HotelDto.builder()
+                .id(1L)
+                .name("")
+                .countryId(1L)
+                .countryName("TestCountry")
+                .stars(5)
+                .website("https://hotel.ru")
+                .build();
+
+        // Act
+        Hotel hotel = converter.convertToEntity(hotelDto);
+
+        // Assert
+        assertNotNull(hotel);
+        assertEquals(hotelDto.getId(), hotel.getId());
+        assertNull(hotel.getName());
+        assertNotNull(hotel.getCountry());
+        assertEquals(hotelDto.getCountryId(), hotel.getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), hotel.getCountry().getName());
+        assertEquals(hotelDto.getStars(), hotel.getStars());
+        assertEquals(hotelDto.getWebsite(), hotel.getWebsite());
+    }
+
+    @Test
+    void convertToEntity_WhenHotelDtoWithBlankCountryName_ShouldReturnHotelWithCountryWithoutName() {
+        // Arrange
+        HotelDto hotelDto = HotelDto.builder()
+                .id(1L)
+                .name("TestHotel")
+                .countryId(1L)
+                .countryName("")
+                .stars(5)
+                .website("https://hotel.ru")
+                .build();
+
+        // Act
+        Hotel hotel = converter.convertToEntity(hotelDto);
+
+        // Assert
+        assertNotNull(hotel);
+        assertEquals(hotelDto.getId(), hotel.getId());
+        assertEquals(hotelDto.getName(), hotel.getName());
+        assertNotNull(hotel.getCountry());
+        assertEquals(hotelDto.getCountryId(), hotel.getCountry().getId());
+        assertNull(hotel.getCountry().getName());
+        assertEquals(hotelDto.getStars(), hotel.getStars());
+        assertEquals(hotelDto.getWebsite(), hotel.getWebsite());
+    }
+
+    @Test
     void convertToEntity_WhenHotelDtoWithBlankWebsite_ShouldReturnHotelWithoutWebsite() {
         // Arrange
         HotelDto hotelDto = HotelDto.builder()
