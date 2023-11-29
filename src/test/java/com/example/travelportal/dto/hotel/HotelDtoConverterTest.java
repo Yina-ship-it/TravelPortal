@@ -1,4 +1,4 @@
-package com.example.travelportal.dto.dto;
+package com.example.travelportal.dto.hotel;
 
 import com.example.travelportal.model.Country;
 import com.example.travelportal.model.Hotel;

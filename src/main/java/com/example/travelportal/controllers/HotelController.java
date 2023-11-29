@@ -1,7 +1,7 @@
 package com.example.travelportal.controllers;
 
-import com.example.travelportal.dto.dto.HotelDto;
-import com.example.travelportal.dto.dto.HotelDtoConverter;
+import com.example.travelportal.dto.hotel.HotelDto;
+import com.example.travelportal.dto.hotel.HotelDtoConverter;
 import com.example.travelportal.model.Hotel;
 import com.example.travelportal.services.hotel.HotelService;
 import jakarta.persistence.EntityNotFoundException;
