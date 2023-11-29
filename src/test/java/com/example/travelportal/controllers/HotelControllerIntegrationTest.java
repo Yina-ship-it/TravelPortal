@@ -1104,4 +1104,31 @@ class HotelControllerIntegrationTest {
         assertEquals(hotelDto.getStars(), createdHotel.get().getStars());
         assertNull(createdHotel.get().getWebsite());
     }
+
+    @Test
+    void deleteHotel_WhenHotelFound_ShouldReturnOkStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry").capital("TestCapital").build());
+        Hotel hotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel").country(country).stars(5).website("https://hotel2.ru").build());
+
+        // Act
+        mockMvc.perform(delete("/api/hotels/{id}", hotel.getId()))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isOk());
+
+    }
+    @Test
+    void deleteHotel_WhenHotelNotFound_ShouldReturnNotFoundStatus() throws Exception {
+        // Arrange
+        long id = Long.MAX_VALUE;
+
+        // Act
+        mockMvc.perform(delete("/api/hotels/{id}", id))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isNotFound());
+    }
 }
