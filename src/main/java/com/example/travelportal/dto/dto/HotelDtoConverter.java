@@ -23,15 +23,17 @@ public class HotelDtoConverter implements DtoConverter<Hotel, HotelDto> {
     public Hotel convertToEntity(HotelDto hotelDto) {
         Country country = Country.builder()
                 .id(hotelDto.getCountryId())
-                .name(hotelDto.getCountryName()).build();
+                .name(getNonBlankString(hotelDto.getCountryName())).build();
         return Hotel.builder()
                 .id(hotelDto.getId())
-                .name(hotelDto.getName())
+                .name(getNonBlankString(hotelDto.getName()))
                 .stars(hotelDto.getStars())
                 .country(country)
-                .website((hotelDto.getWebsite() != null && !hotelDto.getWebsite().isBlank()) ?
-                        hotelDto.getWebsite() :
-                        null)
+                .website(getNonBlankString(hotelDto.getWebsite()))
                 .build();
+    }
+
+    private String getNonBlankString(String value) {
+        return (value != null && !value.isBlank()) ? value : null;
     }
 }
