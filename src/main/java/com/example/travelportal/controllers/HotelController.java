@@ -4,8 +4,10 @@ import com.example.travelportal.dto.dto.HotelDto;
 import com.example.travelportal.dto.dto.HotelDtoConverter;
 import com.example.travelportal.model.Hotel;
 import com.example.travelportal.services.hotel.HotelService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +56,17 @@ public class HotelController {
 
     @PutMapping("/{id}")
     public ResponseEntity<HotelDto> updateHotel(@PathVariable long id, @RequestBody HotelDto hotelDto) {
-        return null;
+        try{
+            Hotel hotel = hotelDtoConverter.convertToEntity(hotelDto);
+            hotel.setId(id);
+            Hotel updatedHotel = hotelService.updateHotel(hotel);
+            return new ResponseEntity<>(hotelDtoConverter.convertToDto(updatedHotel), HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
