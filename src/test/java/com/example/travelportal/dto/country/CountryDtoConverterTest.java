@@ -163,4 +163,49 @@ class CountryDtoConverterTest {
         assertNull(country.getName());
         assertNull(country.getCapital());
     }
+
+    @Test
+    void convertToEntity_WhenCountryDtoWithBlankName_ShouldReturnCountryWithoutAllData() {
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().id(1L).name("").capital("TestCapital").build();
+
+        // Act
+        Country country = converter.convertToEntity(countryDto);
+
+        // Assert
+        assertNotNull(country);
+        assertEquals(countryDto.getId(), country.getId());
+        assertNull(country.getName());
+        assertEquals(countryDto.getCapital(), country.getCapital());
+    }
+
+    @Test
+    void convertToEntity_WhenCountryDtoWithBlankCapital_ShouldReturnCountryWithoutAllData() {
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().id(1L).name("TestCountry").capital("").build();
+
+        // Act
+        Country country = converter.convertToEntity(countryDto);
+
+        // Assert
+        assertNotNull(country);
+        assertEquals(countryDto.getId(), country.getId());
+        assertEquals(countryDto.getName(), country.getName());
+        assertNull(country.getCapital());
+    }
+
+    @Test
+    void convertToEntity_WhenCountryDtoWithBlankAllData_ShouldReturnCountryWithoutAllData() {
+        // Arrange
+        CountryDto countryDto = CountryDto.builder().name("").capital("").build();
+
+        // Act
+        Country country = converter.convertToEntity(countryDto);
+
+        // Assert
+        assertNotNull(country);
+        assertNull(country.getId());
+        assertNull(country.getName());
+        assertNull(country.getCapital());
+    }
 }
