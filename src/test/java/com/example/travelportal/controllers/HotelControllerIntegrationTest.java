@@ -188,6 +188,72 @@ class HotelControllerIntegrationTest {
     }
 
     @Test
+    void updateHotel_WhenHotelDtoWithDuplicateNameInSameCountry_ShouldReturnBadRequestStatus() throws Exception {
+        // Arrange
+        Country country = countryRepository.save(
+                Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        Hotel otherHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel1").country(country).stars(3).website("http://hotel1.ru").build());
+        Hotel oldHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel2").country(country).stars(3).website("http://hotel2.ru").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name(otherHotel.getName())
+                .countryName(country.getName())
+                .countryId(country.getId())
+                .stars(5)
+                .website("https://hotel2.ru").build();
+
+        // Act
+        mockMvc.perform(put("/api/hotels/{id}", oldHotel.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateHotel_WhenHotelDtoWithDuplicateNameInDifferentCountry_ShouldReturnCreatedStatusAndHotelDto() throws Exception {
+        // Arrange
+        Country country1 = countryRepository.save(
+                Country.builder().name("TestCountry1").capital("TestCapital1").build());
+        Hotel otherHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel1").country(country1).stars(3).website("http://hotel1.ru").build());
+        Hotel oldHotel = hotelRepository.save(
+                Hotel.builder().name("TestHotel2").country(country1).stars(3).website("http://hotel2.ru").build());
+        Country country2 = countryRepository.save(
+                Country.builder().name("TestCountry2").capital("TestCapital2").build());
+        HotelDto hotelDto = HotelDto.builder()
+                .name(otherHotel.getName())
+                .countryName(country2.getName())
+                .countryId(country2.getId())
+                .stars(5)
+                .website("https://hotel2.ru").build();
+
+        // Act
+        String responseContent  = mockMvc.perform(put("/api/hotels/{id}", oldHotel.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(hotelDto)))
+                // Assert
+                .andExpect(result -> System.out.println(result.getResponse().getContentAsString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        //Assert
+        HotelDto response = objectMapper.readValue(responseContent, HotelDto.class);
+        Optional<Hotel> updatedHotel = hotelRepository.findById(response.getId());
+
+        assertTrue(updatedHotel.isPresent());
+        assertEquals(oldHotel.getId(), updatedHotel.get().getId());
+        assertEquals(hotelDto.getName(), updatedHotel.get().getName());
+        assertEquals(hotelDto.getCountryId(), updatedHotel.get().getCountry().getId());
+        assertEquals(hotelDto.getCountryName(), updatedHotel.get().getCountry().getName());
+        assertEquals(hotelDto.getStars(), updatedHotel.get().getStars());
+        assertEquals(hotelDto.getWebsite(), updatedHotel.get().getWebsite());
+    }
+
+    @Test
     void updateHotel_WhenHotelDtoWithBlankName_ShouldReturnBadRequestStatus() throws Exception {
         // Arrange
         Country country1 = countryRepository.save(
