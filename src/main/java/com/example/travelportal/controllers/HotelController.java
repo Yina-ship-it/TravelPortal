@@ -2,6 +2,7 @@ package com.example.travelportal.controllers;
 
 import com.example.travelportal.dto.dto.HotelDto;
 import com.example.travelportal.dto.dto.HotelDtoConverter;
+import com.example.travelportal.model.Hotel;
 import com.example.travelportal.services.hotel.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,6 +43,15 @@ public class HotelController {
 
     @GetMapping("/{id}")
     public ResponseEntity<HotelDto> getHotelById (@PathVariable long id) {
-        return null;
+        try {
+            Hotel hotel = hotelService.getHotelById(id);
+            if (hotel != null) {
+                return new ResponseEntity<>(hotelDtoConverter.convertToDto(hotel), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
