@@ -219,7 +219,7 @@ class DefaultHotelServiceTest {
 
         doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
-        doReturn(Optional.of(oldHotel))
+        doReturn(Optional.empty())
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
 
         // Act & Assert
@@ -306,6 +306,22 @@ class DefaultHotelServiceTest {
         assertThrows(DataIntegrityViolationException.class,
                 () -> hotelService.saveHotel(newHotel),
                 "A hotel with the name '" + newHotel.getName() + "' already exists in the country.");
+    }
+
+    @Test
+    void saveHotel_WithCountryWithoutId_ShouldThrowException() {
+        // Arrange
+        Country country = Country.builder().name("Франция").capital("Париж").build();
+        Hotel newHotel = Hotel.builder()
+                .name("Отель1")
+                .country(country)
+                .stars(5)
+                .website("https://hotel1.com")
+                .build();
+
+        // Act & assert
+        assertThrows(EntityNotFoundException.class,
+                () -> hotelService.saveHotel(newHotel));
     }
 
     @Test
