@@ -76,6 +76,8 @@ public class CountryController {
             return new ResponseEntity<>(countryDtoConverter.convertToDto(createdCountry), HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

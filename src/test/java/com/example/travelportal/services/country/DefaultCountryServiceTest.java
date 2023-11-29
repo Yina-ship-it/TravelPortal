@@ -88,11 +88,38 @@ class DefaultCountryServiceTest {
     }
 
     @Test
+    void updateCountry_WithValidData_ShouldUpdateCountry() {
+        // Arrange
+        Country country = new Country(1L,"Франция", "Лондон");
+        Country updatedCountry = new Country(1L, "Великобритания", "Париж");
+
+        doReturn(Optional.of(country)).when(countryRepository).findById(updatedCountry.getId());
+        doReturn(Optional.of(country)).when(countryRepository).findByName(updatedCountry.getName());
+
+        // Act & Assert
+        assertDoesNotThrow(() -> countryService.updateCountry(updatedCountry));
+        verify(this.countryRepository).save(updatedCountry);
+    }
+
+    @Test
+    void updateCountry_WhenCountryNotFound_ShouldThrowException() {
+        // Arrange
+        Country updatedCountry = new Country(1L, "Франция", "Париж");
+
+        doReturn(Optional.empty()).when(countryRepository).findById(updatedCountry.getId());
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class,
+                () -> countryService.updateCountry(updatedCountry));
+    }
+
+    @Test
     void updateCountry_WhenCapitalWithValidData_ShouldUpdateCountry() {
         // Arrange
         Country country = new Country(1L,"Франция", "Лондон");
         Country updatedCountry = new Country(1L, "Франция", "Париж");
 
+        doReturn(Optional.of(country)).when(countryRepository).findById(updatedCountry.getId());
         doReturn(Optional.of(country)).when(countryRepository).findByName(updatedCountry.getName());
 
         // Act & Assert
@@ -106,6 +133,7 @@ class DefaultCountryServiceTest {
         Country country = new Country(1L,"Франция", "Лондон");
         Country updatedCountry = new Country(1L, "Великобритания", "Лондон");
 
+        doReturn(Optional.of(country)).when(countryRepository).findById(updatedCountry.getId());
         doReturn(Optional.empty()).when(countryRepository).findByName(updatedCountry.getName());
 
         // Act & Assert
@@ -117,8 +145,10 @@ class DefaultCountryServiceTest {
     void updateCountry_WithDuplicateName_ShouldThrowException() {
         // Arrange
         Country country = new Country(1L,"Франция", "Лондон");
+        Country oldCountry = new Country(2L, "Великобритания", "Париж");
         Country updatedCountry = new Country(2L, "Франция", "Париж");
 
+        lenient().doReturn(Optional.of(oldCountry)).when(countryRepository).findById(updatedCountry.getId());
         doReturn(Optional.of(country)).when(countryRepository).findByName(updatedCountry.getName());
 
         // Act & Assert
@@ -134,6 +164,7 @@ class DefaultCountryServiceTest {
         Country country = new Country(1L,"Франция", "Лондон");
         Country updatedCountry = new Country(1L, tooLongName, "Париж");
 
+        lenient().doReturn(Optional.of(country)).when(countryRepository).findById(updatedCountry.getId());
         lenient().when(countryRepository.findByName(updatedCountry.getName()))
                 .thenReturn(Optional.of(country));
 
@@ -149,6 +180,7 @@ class DefaultCountryServiceTest {
         Country country = new Country(1L,"Франция", "Лондон");
         Country updatedCountry = new Country(1L, "Франция", tooLongCapital);
 
+        lenient().doReturn(Optional.of(country)).when(countryRepository).findById(updatedCountry.getId());
         doReturn(Optional.of(country)).when(countryRepository).findByName(updatedCountry.getName());
 
         // Act & Assert
