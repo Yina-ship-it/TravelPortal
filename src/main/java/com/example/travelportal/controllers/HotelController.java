@@ -69,4 +69,9 @@ public class HotelController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/")
+    public ResponseEntity<HotelDto> createHotel(@RequestBody HotelDto hotelDto) {
+        return null;
+    }
 }
