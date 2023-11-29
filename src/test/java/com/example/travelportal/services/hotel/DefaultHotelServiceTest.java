@@ -98,6 +98,7 @@ class DefaultHotelServiceTest {
         Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, "Отель1", country, 5, "https://hotel1.com");
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
         doReturn(Optional.of(oldHotel))
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
@@ -109,14 +110,29 @@ class DefaultHotelServiceTest {
     }
 
     @Test
+    void updateHotel_WithHotelNotFound_ShouldThrowException() {
+        // Arrange
+        Country country = new Country(1L, "Франция", "Париж");
+        Hotel newHotel = new Hotel(1L, "Отель1", country, 5, "https://hotel1.com");
+
+        doReturn(Optional.empty()).when(hotelRepository).findById(newHotel.getId());
+
+        // Act & assert
+        assertThrows(EntityNotFoundException.class,
+                () -> hotelService.updateHotel(newHotel));
+    }
+
+    @Test
     void updateHotel_WithDuplicateNameInCountry_ShouldThrowException() {
         // Arrange
         Country country = new Country(1L, "Франция", "Париж");
-        Hotel oldHotel = new Hotel(2L, "Отель1", country, 4, "https://hotel1.com");
+        Hotel oldHotel = new Hotel(1L, "Отель2", country, 4, "https://hotel2.com");
+        Hotel otherHotel = new Hotel(2L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
-        doReturn(Optional.of(oldHotel))
+        doReturn(Optional.of(otherHotel))
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
 
         // Act & assert
@@ -126,16 +142,32 @@ class DefaultHotelServiceTest {
     }
 
     @Test
+    void updateHotel_WithCountryWithoutId_ShouldThrowException() {
+        // Arrange
+        Country country = Country.builder().name("Франция").capital("Париж").build();
+        Hotel oldHotel = Hotel.builder().id(1L).name("Отель2").stars(4).build();
+        Hotel newHotel = new Hotel(1L, "Отель1", country, 5, "https://hotel1.com");
+
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
+
+        // Act & assert
+        assertThrows(EntityNotFoundException.class,
+                () -> hotelService.updateHotel(newHotel));
+    }
+
+    @Test
     void updateHotel_WithCountryNotFound_ShouldThrowException() {
         // Arrange
         Country country = new Country(1L, "Франция", "Париж");
+        Hotel oldHotel = Hotel.builder().id(1L).name("Отель2").stars(4).build();
         Hotel newHotel = new Hotel(1L, "Отель1", country, 5, "https://hotel1.com");
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(null).when(countryService).getCountryById(country.getId());
 
         // Act & assert
         assertThrows(EntityNotFoundException.class,
-                () -> hotelService.saveHotel(newHotel));
+                () -> hotelService.updateHotel(newHotel));
     }
 
     @Test
@@ -145,13 +177,36 @@ class DefaultHotelServiceTest {
         Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, "Отель1", country, 7, "https://hotel1.com");
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
         doReturn(Optional.of(oldHotel))
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
 
         // Act & Assert
         assertThrows(DataIntegrityViolationException.class,
-                () -> hotelService.saveHotel(newHotel),"Invalid hotel stars");
+                () -> hotelService.updateHotel(newHotel),"Invalid hotel stars");
+    }
+
+    @Test
+    void updateHotel_WhenHotelInputWithoutStars_ShouldThrowException() {
+        // Arrange
+        String tooLongName = "A".repeat(256);
+        Country country = new Country(1L, "Франция", "Париж");
+        Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
+        Hotel newHotel = Hotel.builder()
+                .id(1L)
+                .name("Отель1")
+                .country(country)
+                .website("https://hotel1.com").build();
+
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
+        doReturn(country).when(countryService).getCountryById(country.getId());
+        doReturn(Optional.of(oldHotel))
+                .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
+
+        // Act & Assert
+        assertThrows(DataIntegrityViolationException.class,
+                () -> hotelService.updateHotel(newHotel),"Invalid hotel stars");
     }
 
     @Test
@@ -162,13 +217,35 @@ class DefaultHotelServiceTest {
         Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, tooLongName, country, 4, "https://hotel1.com");
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
+        doReturn(country).when(countryService).getCountryById(country.getId());
+        doReturn(Optional.empty())
+                .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
+
+        // Act & Assert
+        assertThrows(DataIntegrityViolationException.class,
+                () -> hotelService.updateHotel(newHotel),"Invalid hotel name");
+    }
+
+    @Test
+    void updateHotel_WhenHotelInputWithoutName_ShouldThrowException() {
+        // Arrange
+        Country country = new Country(1L, "Франция", "Париж");
+        Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
+        Hotel newHotel = Hotel.builder()
+                .id(1L)
+                .country(country)
+                .stars(4)
+                .website("https://hotel1.com").build();
+
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
         doReturn(Optional.of(oldHotel))
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
 
         // Act & Assert
         assertThrows(DataIntegrityViolationException.class,
-                () -> hotelService.saveHotel(newHotel),"Invalid hotel name");
+                () -> hotelService.updateHotel(newHotel),"Invalid hotel name");
     }
 
     @Test
@@ -179,13 +256,14 @@ class DefaultHotelServiceTest {
         Hotel oldHotel = new Hotel(1L, "Отель1", country, 4, "https://hotel1.com");
         Hotel newHotel = new Hotel(1L, "Отель1", country, 4, invalidWebsite);
 
+        doReturn(Optional.of(oldHotel)).when(hotelRepository).findById(newHotel.getId());
         doReturn(country).when(countryService).getCountryById(country.getId());
         doReturn(Optional.of(oldHotel))
                 .when(hotelRepository).findByCountry_IdAndName(country.getId(), newHotel.getName());
 
         // Act & Assert
         assertThrows(DataIntegrityViolationException.class,
-                () -> hotelService.saveHotel(newHotel),"Invalid hotel website");
+                () -> hotelService.updateHotel(newHotel),"Invalid hotel website");
     }
 
     @Test
@@ -228,6 +306,22 @@ class DefaultHotelServiceTest {
         assertThrows(DataIntegrityViolationException.class,
                 () -> hotelService.saveHotel(newHotel),
                 "A hotel with the name '" + newHotel.getName() + "' already exists in the country.");
+    }
+
+    @Test
+    void saveHotel_WithCountryWithoutId_ShouldThrowException() {
+        // Arrange
+        Country country = Country.builder().name("Франция").capital("Париж").build();
+        Hotel newHotel = Hotel.builder()
+                .name("Отель1")
+                .country(country)
+                .stars(5)
+                .website("https://hotel1.com")
+                .build();
+
+        // Act & assert
+        assertThrows(EntityNotFoundException.class,
+                () -> hotelService.saveHotel(newHotel));
     }
 
     @Test

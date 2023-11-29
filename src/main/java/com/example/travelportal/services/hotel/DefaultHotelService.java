@@ -55,7 +55,10 @@ public class DefaultHotelService implements HotelService {
     @Override
     @Transactional
     public Hotel updateHotel(Hotel hotel) {
-        if(hotel.getCountry() == null)
+        Optional<Hotel> oldHotel = hotelRepository.findById(hotel.getId());
+        if(oldHotel.isEmpty())
+            throw new EntityNotFoundException("Hotel with id " + hotel.getId() + " not found");
+        if(hotel.getCountry() == null || hotel.getCountry().getId() == null)
             throw new EntityNotFoundException("Country not found.");
         Country country = countryService.getCountryById(hotel.getCountry().getId());
         if (country == null)
@@ -72,7 +75,7 @@ public class DefaultHotelService implements HotelService {
     @Override
     @Transactional
     public Hotel saveHotel(Hotel hotel) {
-        if(hotel.getCountry() == null)
+        if(hotel.getCountry() == null || hotel.getCountry().getId() == null)
             throw new EntityNotFoundException("Country not found.");
         Country country = countryService.getCountryById(hotel.getCountry().getId());
         if (country == null)
@@ -95,7 +98,7 @@ public class DefaultHotelService implements HotelService {
 
 
     private void validateHotelData(Hotel hotel) {
-        if (hotel.getName().length() > 255)
+        if (hotel.getName() == null || hotel.getName().length() > 255)
             throw new DataIntegrityViolationException("Invalid hotel name");
         if (hotel.getStars() == null || hotel.getStars() < 1 || hotel.getStars() > 5)
             throw new DataIntegrityViolationException("Invalid hotel stars");
