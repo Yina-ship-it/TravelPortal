@@ -44,10 +44,27 @@ function displayCountries(countries) {
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
+        deleteButton.onclick = () => deleteCountry(country.id, country.name);
         actionsCell.appendChild(deleteButton);
 
         row.appendChild(actionsCell);
 
         tableBody.appendChild(row);
     });
+}
+
+function deleteCountry(countryId, countryName) {
+    fetch(`/api/countries/${countryId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (response.ok) {
+                // Успешное удаление
+                alert(`Страна "${countryName}" успешно удалена.`);
+                loadCountries(); // Обновляем таблицу после удаления
+            } else {
+                alert(`Не удалось удалить страну "${countryName}". Возможно, это невозможно на данный момент.`);
+            }
+        })
+        .catch(error => console.error(`Ошибка при удалении страны ${countryId}:`, error));
 }
