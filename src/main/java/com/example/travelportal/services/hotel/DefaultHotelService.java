@@ -117,6 +117,6 @@ public class DefaultHotelService implements HotelService {
 
     @Override
     public List<Hotel> searchHotelsByCountryIdAndNameFragment(long countryId, String fragment) {
-        return null;
+        return hotelRepository.findAllByCountry_IdAndNameFragmentOrderByStarsDesc(countryId, fragment);
     }
 }
