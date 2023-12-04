@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hotel Finder</title>
+    <script src="/countries_loader.js" defer></script>
+    <script src="/hotels_loader.js" defer></script>
+</head>
+<body>
+<section>
+    <h1>Каталог стран</h1>
+    <button id="countriesLoaderButton" onclick="toggleCountriesTable()">Загрузить страны</button>
+    <br>
+    <button id="countryAdd" onclick="showAddCountryForm()" style="display: none">Добавить страну</button>
+    <table id="countriesTable" style="display: none">
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Столица</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
+
+<section>
+    <h2>Справочник отелей</h2>
+    <button id="hotelsLoaderButton" onclick="toggleHotelsTable()">Загрузить отели</button>
+    <br>
+    <button id="hotelAdd" onclick="showAddHotelForm()" style="display: none">Добавить Отель</button>
+    <table id="hotelsTable" style="display: none">
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Страна</th>
+            <th>Звездность</th>
+            <th>Веб-сайт</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
