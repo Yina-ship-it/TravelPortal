@@ -4,13 +4,77 @@ function toggleCountriesTable() {
     if (!countriesTableVisible) {
         loadCountries();
         document.getElementById('countriesTable').style.display = 'table';
+        document.getElementById('countryAdd').style.display = 'inline-block';
         document.getElementById('countriesLoaderButton').textContent = 'Скрыть страны';
     } else {
         document.getElementById('countriesTable').style.display = 'none';
+        document.getElementById('countryAdd').style.display = 'none';
         document.getElementById('countriesLoaderButton').textContent = 'Загрузить страны';
     }
 
     countriesTableVisible = !countriesTableVisible;
+}
+
+function showAddCountryForm() {
+    const tableBody = document.querySelector('#countriesTable tbody');
+    document.getElementById('countryAdd').style.display = 'none'
+    const newRow = tableBody.insertRow(0);
+
+    const nameCell = newRow.insertCell(0);
+    const capitalCell = newRow.insertCell(1);
+    const actionsCell = newRow.insertCell(2);
+
+    const nameInput = document.createElement('input');
+    nameInput.setAttribute('type', 'text');
+    nameInput.setAttribute('placeholder', 'Название');
+    nameCell.appendChild(nameInput);
+
+    const capitalInput = document.createElement('input');
+    capitalInput.setAttribute('type', 'text');
+    capitalInput.setAttribute('placeholder', 'Столица');
+    capitalCell.appendChild(capitalInput);
+
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Добавить';
+    addButton.onclick = () => addCountry(nameInput.value, capitalInput.value);
+    actionsCell.appendChild(addButton);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Отмена';
+    cancelButton.onclick = () => {
+        document.getElementById('countryAdd').style.display = 'inline-block';
+        newRow.remove()
+    }
+    actionsCell.appendChild(cancelButton);
+}
+
+function addCountry(name, capital) {
+    document.getElementById('countryAdd').style.display = 'inline-block';
+    fetch('/api/countries/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: name,
+            capital: capital,
+        }),
+    })
+        .then(response => {
+            if (response.status === 201) {
+                return response.json();
+            } else {
+                throw new Error('Не удалось создать страну.');
+            }
+        })
+        .then(data => {
+            loadCountries();
+            alert('Страна успешно создана!');
+        })
+        .catch(error => {
+            document.querySelector('#countriesTable tbody').deleteRow(0);
+            alert(error.message);
+        });
 }
 
 function loadCountries() {
@@ -60,9 +124,8 @@ function deleteCountry(countryId, countryName) {
     })
         .then(response => {
             if (response.ok) {
-                // Успешное удаление
                 alert(`Страна "${countryName}" успешно удалена.`);
-                loadCountries(); // Обновляем таблицу после удаления
+                loadCountries();
             } else {
                 alert(`Не удалось удалить страну "${countryName}". Возможно, это невозможно на данный момент.`);
             }
