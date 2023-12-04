@@ -53,10 +53,26 @@ function displayHotels(hotels) {
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
+        deleteButton.onclick = () => deleteHotel(hotel.id, hotel.name);
         actionsCell.appendChild(deleteButton);
 
         row.appendChild(actionsCell);
 
         tableBody.appendChild(row);
     });
+}
+
+function deleteHotel(hotelId, hotelName) {
+    fetch(`/api/hotels/${hotelId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (response.ok) {
+                alert(`Отель "${hotelName}" успешно удален.`);
+                loadHotels();
+            } else {
+                alert(`Не удалось удалить отель "${hotelName}". Возможно, это невозможно на данный момент.`);
+            }
+        })
+        .catch(error => console.error(`Ошибка при удалении отеля ${hotelId}:`, error));
 }
