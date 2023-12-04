@@ -114,4 +114,9 @@ public class DefaultHotelService implements HotelService {
             return false;
         }
     }
+
+    @Override
+    public List<Hotel> searchHotelsByCountryIdAndNameFragment(long countryId, String fragment) {
+        return null;
+    }
 }
