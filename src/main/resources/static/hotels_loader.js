@@ -4,13 +4,103 @@ function toggleHotelsTable() {
     if (!hotelsTableVisible) {
         loadHotels();
         document.getElementById('hotelsTable').style.display = 'table';
+        document.getElementById('hotelAdd').style.display = 'inline-block';
         document.getElementById('hotelsLoaderButton').textContent = 'Скрыть отели';
     } else {
         document.getElementById('hotelsTable').style.display = 'none';
+        document.getElementById('hotelAdd').style.display = 'none';
         document.getElementById('hotelsLoaderButton').textContent = 'Загрузить отели';
     }
 
     hotelsTableVisible = !hotelsTableVisible;
+}
+
+function showAddHotelForm() {
+    document.getElementById('hotelAdd').style.display = 'none';
+    const tableBody = document.querySelector('#hotelsTable tbody');
+    const newRow = tableBody.insertRow(0);
+
+    const nameCell = newRow.insertCell(0);
+    const countryCell = newRow.insertCell(1);
+    const starsCell = newRow.insertCell(2)
+    const websiteCell = newRow.insertCell(3)
+    const actionsCell = newRow.insertCell(4);
+
+    const nameInput = document.createElement('input');
+    nameInput.setAttribute('type', 'text');
+    nameInput.setAttribute('placeholder', 'Название');
+    nameCell.appendChild(nameInput);
+
+    const countryInput = document.createElement('select');
+    countryInput.setAttribute('placeholder', 'Страна');
+    fetch('/api/countries/')
+        .then(response => response.json())
+        .then(countries => {
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.id;
+                option.text = country.name;
+                countryInput.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error loading countries:', error));
+    countryCell.appendChild(countryInput);
+
+    const starsInput = document.createElement('input');
+    starsInput.setAttribute('type', 'number');
+    starsInput.setAttribute('min', '1');
+    starsInput.setAttribute('max', '5');
+    starsInput.setAttribute('placeholder', 'Звездность');
+    starsCell.appendChild(starsInput);
+
+    const websiteInput = document.createElement('input');
+    websiteInput.setAttribute('type', 'url');
+    websiteInput.setAttribute('placeholder', 'Веб-сайт');
+    websiteCell.appendChild(websiteInput);
+
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Добавить';
+    addButton.onclick = () => addHotel(nameInput.value, countryInput.value, starsInput.value , websiteInput.value);
+    actionsCell.appendChild(addButton);
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Отмена';
+    cancelButton.onclick = () => {
+        document.getElementById('hotelAdd').style.display = 'inline-block';
+        newRow.remove()
+    }
+    actionsCell.appendChild(cancelButton);
+}
+
+function addHotel(name, country, stars, website) {
+    document.getElementById('hotelAdd').style.display = 'inline-block';
+    fetch('/api/hotels/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: name,
+            countryId: country,
+            stars: stars,
+            website: website
+        }),
+    })
+        .then(response => {
+            if (response.status === 201) {
+                return response.json();
+            } else {
+                throw new Error('Не удалось создать отель.');
+            }
+        })
+        .then(data => {
+            loadHotels();
+            alert('Отель успешно создан!');
+        })
+        .catch(error => {
+            document.querySelector('#hotelsTable tbody').deleteRow(0);
+            alert(error.message);
+        });
 }
 
 function loadHotels() {
