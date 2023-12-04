@@ -37,4 +37,9 @@ public class MainController {
         model.addAttribute("countries", countryService.getAllCountries());
         return "index";
     }
+
+    @GetMapping("/search")
+    public String search(@ModelAttribute SearchForm searchForm, Model model) {
+        return null;
+    }
 }
