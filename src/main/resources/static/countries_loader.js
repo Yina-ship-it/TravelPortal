@@ -1,3 +1,18 @@
+let countriesTableVisible = false;
+
+function toggleCountriesTable() {
+    if (!countriesTableVisible) {
+        loadCountries();
+        document.getElementById('countriesTable').style.display = 'table';
+        document.getElementById('countriesLoaderButton').textContent = 'Скрыть страны';
+    } else {
+        document.getElementById('countriesTable').style.display = 'none';
+        document.getElementById('countriesLoaderButton').textContent = 'Загрузить страны';
+    }
+
+    countriesTableVisible = !countriesTableVisible;
+}
+
 function loadCountries() {
     fetch('/api/countries/')
         .then(response => response.json())
