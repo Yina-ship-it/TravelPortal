@@ -5,7 +5,9 @@
   <title>Search Results</title>
 </head>
 <body>
-
+<form action="/" method="get">
+  <button type="submit">Вернуться на главную страницу</button>
+</form>
 <section>
   <th:block th:if="${not #lists.isEmpty(searchResults)}">
     <p>Найдено <span th:text="${#lists.size(searchResults)}"></span> отелей:</p>
