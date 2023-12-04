@@ -9,6 +9,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -57,5 +62,44 @@ class HotelRepositoryIntegrationTest {
 
         // Assert
         assertEquals(3, result);
+    }
+
+    @Test
+    void findAllByCountry_IdAndNameFragmentOrderByStarsDesc(){
+        // Arrange
+        hotelRepository.deleteAll();
+        Country country = Country.builder().name("CountryTest").capital("CapitalTest").build();
+        entityManager.persist(country);
+
+        List<Hotel> hotels = new ArrayList<>(List.of(
+                Hotel.builder().name("HotelTest1").country(country).stars(5).build(),
+                Hotel.builder().name("HotelTest2").country(country).stars(3).build(),
+                Hotel.builder().name("HotelTest3").country(country).stars(1).build(),
+                Hotel.builder().name("HotelTest4").country(country).stars(2).build(),
+                Hotel.builder().name("HotelTest5").country(country).stars(4).build(),
+                Hotel.builder().name("HotelTest6").country(country).stars(3).build(),
+                Hotel.builder().name("HotelTest7").country(country).stars(3).build(),
+                Hotel.builder().name("HotelTest8").country(country).stars(4).build()
+        ));
+        Collections.shuffle(hotels);
+        for (Hotel hotel : hotels) {
+            entityManager.persist(hotel);
+        }
+
+        hotels.sort((o1, o2) -> {
+            int starsComparison = Integer.compare(o2.getStars(), o1.getStars());
+            if (starsComparison != 0) {
+                return starsComparison;
+            }
+            return o1.getName().compareTo(o2.getName());
+        });
+
+        // Act
+        List<Hotel> result = hotelRepository
+                .findAllByCountry_IdAndNameFragmentOrderByStarsDesc(country.getId(), "TesT");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(hotels, result);
     }
 }
