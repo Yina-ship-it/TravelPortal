@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Hotel Finder</title>
+    <script src="/countries_loader.js" defer></script>
 </head>
 <body>
 <section>
     <h1>Каталог стран</h1>
+    <button id="countriesLoaderButton" onclick="loadCountries()">Загрузить страны</button>
     <br>
-    <table id="countriesTable" border="1" style="display: none">
+    <table id="countriesTable">
         <thead>
         <tr>
             <th>Название</th>
