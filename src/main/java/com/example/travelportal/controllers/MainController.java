@@ -40,6 +40,10 @@ public class MainController {
 
     @GetMapping("/search")
     public String search(@ModelAttribute SearchForm searchForm, Model model) {
-        return null;
+        Country selectedCountry = searchFormConverter.convertToEntity(searchForm);
+        List<Hotel> searchResults = hotelService.searchHotelsByCountryIdAndNameFragment(
+                selectedCountry.getId(), searchForm.getSearchInput());
+        model.addAttribute("searchResults", searchResults);
+        return "searchResults";
     }
 }
