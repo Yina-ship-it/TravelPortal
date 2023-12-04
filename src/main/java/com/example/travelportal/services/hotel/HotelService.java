@@ -11,4 +11,6 @@ public interface HotelService {
     Hotel updateHotel(Hotel hotel);
     Hotel saveHotel(Hotel hotel);
     void deleteHotelById(long hotelId);
+
+    List<Hotel> searchHotelsByCountryIdAndNameFragment(long countryId, String fragment);
 }

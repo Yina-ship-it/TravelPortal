@@ -444,4 +444,38 @@ class DefaultHotelServiceTest {
         // Assert
         assertEquals(hotels.size(), result);
     }
+
+    @Test
+    void searchHotelsByCountryIdAndNameFragment_WhenHotelsExist_ShouldReturnListOfHotels() {
+        // Arrange
+        Country country = new Country(1L, "Россия", "Москва");
+        List<Hotel> hotels = List.of(new Hotel(1L, "Отель1", country, 5, null),
+                new Hotel(2L, "Отель 2", country, 4, null));
+
+        doReturn(hotels).when(hotelRepository)
+                .findAllByCountry_IdAndNameFragmentOrderByStarsDesc(country.getId(), "Отель");
+
+        // Act
+        List<Hotel> result = hotelService.searchHotelsByCountryIdAndNameFragment(country.getId(), "Отель");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(hotels, result);
+    }
+
+    @Test
+    void searchHotelsByCountryIdAndNameFragment_WhenNoHotelsExist_ShouldReturnListOfHotels() {
+        // Arrange
+        List<Hotel> hotels = List.of();
+
+        doReturn(hotels).when(hotelRepository)
+                .findAllByCountry_IdAndNameFragmentOrderByStarsDesc(1L,"Отель");
+
+        // Act
+        List<Hotel> result = hotelService.searchHotelsByCountryIdAndNameFragment(1L,"Отель");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(hotels, result);
+    }
 }

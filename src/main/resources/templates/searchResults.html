@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Results</title>
+</head>
+<body>
+<form action="/" method="get">
+  <button type="submit">Вернуться на главную страницу</button>
+</form>
+<section>
+  <th:block th:if="${not #lists.isEmpty(searchResults)}">
+    <p>Найдено <span th:text="${#lists.size(searchResults)}"></span> отелей:</p>
+    <table>
+      <thead>
+      <tr>
+        <th>Звездность</th>
+        <th>Название</th>
+        <th>Ссылка на сайт</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="result : ${searchResults}">
+        <td th:text="${result.stars}"></td>
+        <td th:text="${result.name}"></td>
+        <td th:if="${result.website != null}">
+          <a th:href="${result.website}" target="_blank">Перейти на сайт</a>
+        </td>
+        <td th:unless="${result.website != null}">Нет сайта</td>
+      </tr>
+      </tbody>
+    </table>
+  </th:block>
+
+  <th:block th:if="${#lists.isEmpty(searchResults)}">
+    <p>Ничего не найдено.</p>
+  </th:block>
+</section>
+
+</body>
+</html>
