@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Hotel Finder</title>
     <script src="/countries_loader.js" defer></script>
+    <script src="/hotels_loader.js" defer></script>
 </head>
 <body>
 <section>
@@ -25,8 +26,9 @@
 
 <section>
     <h2>Справочник отелей</h2>
+    <button id="hotelsLoaderButton" onclick="toggleHotelsTable()">Загрузить отели</button>
     <br>
-    <table  id="hotelsTable">
+    <table id="hotelsTable" style="display: none">
         <thead>
         <tr>
             <th>Название</th>
